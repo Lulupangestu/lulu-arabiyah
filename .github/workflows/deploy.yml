@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - master  # Ganti jadi master jika branch utama kamu namanya master
+      - main  # Kembali menggunakan main sesuai sistem GitHub kamu
 
 permissions:
   contents: read
@@ -19,7 +19,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-grow: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,18 +28,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm' # Menggunakan pnpm sesuai dengan pnpm-lock.yaml di proyekmu
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps
 
-      - name: Install dependencies
-        run: pnpm install
+      - name: Fix Config for Flat Structure
+        run: |
+          # Perintah khusus untuk memindahkan App.tsx dll ke tempat yang dibaca Vite
+          mkdir -p src
+          cp App.tsx main.tsx index.css vite-env.d.ts src/ 2>/dev/null || true
 
-      - name: Build
-        run: pnpm run build
+      - name: Build Proyek
+        run: npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
